@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaik Naseera Faiza | Frontend Developer</title>
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg, #ece2d5 0%, #e0d1be 100%);
+    padding:40px;
+    color:#2c1810;
+}
+
+.resume{
+    max-width:960px;
+    margin:auto;
+    background:#fefcf7;
+    border-radius:32px;
+    overflow:hidden;
+    box-shadow:0 30px 60px rgba(31,15,10,0.15);
+}
+
+/* ===== HEADER ===== */
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:36px;
+    padding:44px 48px 36px;
+    background:linear-gradient(135deg, #ece0d2 0%, #dcccbb 100%);
+    border-bottom:3px solid #a67c52;
+}
+
+.header-photo{
+    width:170px;
+    height:170px;
+    border-radius:50%;
+    object-fit:cover;
+    border:5px solid #fefcf7;
+    box-shadow:0 10px 25px rgba(31,15,10,0.18);
+    flex-shrink:0;
+}
+
+.header-info h1{
+    font-size:40px;
+    letter-spacing:1px;
+    color:#2c1810;
+    line-height:1.15;
+}
+
+.header-info h3{
+    font-size:19px;
+    font-weight:500;
+    color:#5d4430;
+    margin-top:4px;
+    letter-spacing:0.5px;
+}
+
+.header-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px 24px;
+    margin-top:14px;
+}
+
+.header-links a{
+    color:#6b4c3b;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:.2s;
+}
+
+.header-links a:hover{
+    color:#2c1810;
+    text-decoration:underline;
+}
+
+/* ===== BODY ===== */
+
+.body{
+    padding:40px 48px 48px;
+}
+
+/* ===== ABOUT ===== */
+
+.about{
+    background:linear-gradient(135deg, #f0e8df 0%, #ece2d5 100%);
+    border-radius:18px;
+    padding:28px 32px;
+    margin-bottom:32px;
+    border-left:5px solid #a67c52;
+}
+
+.about p{
+    line-height:1.85;
+    color:#2f2013;
+    font-size:15.5px;
+}
+
+/* ===== SECTION ===== */
+
+.section{
+    margin-bottom:32px;
+}
+
+.section:last-child{
+    margin-bottom:0;
+}
+
+.section-header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:20px;
+}
+
+.section-header .icon{
+    width:38px;
+    height:38px;
+    background:#a67c52;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    flex-shrink:0;
+}
+
+.section-header h2{
+    font-size:22px;
+    color:#3a2818;
+    letter-spacing:0.5px;
+    border-bottom:2px solid #a67c52;
+    padding-bottom:4px;
+    flex:1;
+}
+
+/* ===== GRID ROW (Education) ===== */
+
+.info-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr 1fr;
+    gap:0;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid #d2c0ae;
+}
+
+.info-grid .cell{
+    padding:16px 18px;
+    text-align:center;
+}
+
+.info-grid .cell.label{
+    background:#a67c52;
+    color:#2c1810;
+    font-weight:600;
+    font-size:14px;
+}
+
+.info-grid .cell.value{
+    background:#f0e8df;
+    color:#2f2013;
+    font-size:14.5px;
+}
+
+.info-grid .cell.value:last-child{
+    font-weight:600;
+    color:#3a2818;
+}
+
+/* ===== TIMELINE (Projects) ===== */
+
+.timeline{
+    position:relative;
+    padding-left:32px;
+}
+
+.timeline::before{
+    content:'';
+    position:absolute;
+    left:10px;
+    top:6px;
+    bottom:6px;
+    width:2px;
+    background:#c9b8a5;
+}
+
+.timeline-item{
+    position:relative;
+    margin-bottom:24px;
+    padding:20px 24px;
+    background:#f0e8df;
+    border-radius:14px;
+    border:1px solid #e0d4c6;
+    transition:.2s;
+}
+
+.timeline-item:last-child{
+    margin-bottom:0;
+}
+
+.timeline-item:hover{
+    border-color:#a67c52;
+    box-shadow:0 4px 15px rgba(31,15,10,0.08);
+}
+
+.timeline-item::before{
+    content:'';
+    position:absolute;
+    left:-27px;
+    top:24px;
+    width:12px;
+    height:12px;
+    background:#a67c52;
+    border-radius:50%;
+    border:3px solid #fefcf7;
+    box-shadow:0 0 0 2px #a67c52;
+}
+
+.timeline-item .date{
+    font-size:13px;
+    color:#705e4e;
+    font-weight:500;
+    margin-bottom:4px;
+}
+
+.timeline-item h3{
+    font-size:17px;
+    color:#3a2818;
+    margin-bottom:8px;
+}
+
+.timeline-item p{
+    line-height:1.7;
+    color:#2f2013;
+    margin-bottom:4px;
+    font-size:14.5px;
+}
+
+.timeline-item .tech{
+    display:inline-block;
+    margin-top:6px;
+    font-size:13px;
+    color:#5d4430;
+    font-weight:500;
+    background:#e0d1be;
+    padding:4px 14px;
+    border-radius:999px;
+}
+
+/* ===== SKILLS ===== */
+
+.skill-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
+    gap:12px;
+}
+
+.skill-grid span{
+    background:#ece2d5;
+    color:#3a2818;
+    padding:12px 16px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:500;
+    text-align:center;
+    border:1px solid #d2c0ae;
+    transition:.2s;
+}
+
+.skill-grid span:hover{
+    background:#a67c52;
+    color:#2c1810;
+    border-color:#a67c52;
+    transform:translateY(-2px);
+}
+
+/* ===== WORK ===== */
+
+.work-box{
+    background:#f0e8df;
+    border-radius:14px;
+    padding:22px 26px;
+    border-left:5px solid #a67c52;
+}
+
+.work-box h4{
+    color:#3a2818;
+    font-size:16px;
+    margin-bottom:6px;
+}
+
+.work-box p{
+    color:#2f2013;
+    line-height:1.7;
+}
+
+/* ===== LANGUAGES ===== */
+
+.lang-list{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+}
+
+.lang-list span{
+    background:#f0e8df;
+    color:#3a2818;
+    padding:8px 20px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:500;
+    border:1px solid #d2c0ae;
+}
+
+.lang-list span:hover{
+    background:#a67c52;
+    color:#2c1810;
+    border-color:#a67c52;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:768px){
+
+    body{
+        padding:16px;
+    }
+
+    .header{
+        flex-direction:column;
+        text-align:center;
+        padding:28px 24px 24px;
+        gap:20px;
+    }
+
+    .header-photo{
+        width:130px;
+        height:130px;
+    }
+
+    .header-info h1{
+        font-size:30px;
+    }
+
+    .header-links{
+        justify-content:center;
+    }
+
+    .body{
+        padding:28px 24px 32px;
+    }
+
+    .info-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .skill-grid{
+        grid-template-columns:repeat(auto-fill, minmax(120px,1fr));
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="resume">
+
+    <!-- ===== HEADER ===== -->
+
+    <div class="header">
+        <img src="profile.jpeg" alt="Shaik Naseera Faiza" class="header-photo">
+        <div class="header-info">
+            <h1>SHAIK NASEERA FAIZA</h1>
+            <h3>Frontend Developer</h3>
+            <div class="header-links">
+                <a href="mailto:nsfaiza9@gmail.com">&#x2709; nsfaiza9@gmail.com</a>
+                <a href="https://www.linkedin.com/in/naseera-faiza-shaik-898626385/" target="_blank">&#x1F517; LinkedIn</a>
+                <a href="https://github.com/ns-faiza9" target="_blank">&#x1F419; GitHub</a>
+                <a href="https://www.codechef.com/users/kl2500032104" target="_blank">&#x1F4BB; CodeChef</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BODY ===== -->
+
+    <div class="body">
+
+        <!-- ABOUT -->
+
+        <div class="about">
+            <p>
+                Enthusiastic B.Tech student with a strong foundation in frontend development
+                and Java programming. Passionate about building real-world applications and
+                solving problems using data structures and algorithms. Seeking opportunities
+                to apply skills, learn from industry experience, and contribute to impactful
+                projects.
+            </p>
+        </div>
+
+        <!-- EDUCATION -->
+
+        <div class="section">
+            <div class="section-header">
+                <div class="icon">&#x1F393;</div>
+                <h2>EDUCATION</h2>
+            </div>
+            <div class="info-grid">
+                <div class="cell label">Qualification</div>
+                <div class="cell label">Institution</div>
+                <div class="cell label">Year</div>
+                <div class="cell label">GPA</div>
+                <div class="cell value">B.Tech (CSE)</div>
+                <div class="cell value">K L University</div>
+                <div class="cell value">2024 – 2028</div>
+                <div class="cell value">9.75</div>
+            </div>
+        </div>
+
+        <!-- WORK EXPERIENCE -->
+
+        <div class="section">
+            <div class="section-header">
+                <div class="icon">&#x1F4BC;</div>
+                <h2>WORK EXPERIENCE</h2>
+            </div>
+            <div class="work-box">
+                <h4>Fresher</h4>
+                <p>Highly motivated to gain real-world experience and contribute to practical projects.</p>
+            </div>
+        </div>
+
+        <!-- PROJECTS -->
+
+        <div class="section">
+            <div class="section-header">
+                <div class="icon">&#x1F4BB;</div>
+                <h2>PROJECTS</h2>
+            </div>
+            <div class="timeline">
+
+                <div class="timeline-item">
+                    <div class="date">August 2029</div>
+                    <h3>CSV Validator &amp; Normalizer</h3>
+                    <p>Built a system to validate and normalize CSV data. Implemented rule-based validation and error reporting. Improved data consistency and usability.</p>
+                    <span class="tech">Java</span>
+                    <span class="tech">Data Structures</span>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="date">November 2025</div>
+                    <h3>UniPortal – Course Catalogue &amp; Scheduler</h3>
+                    <p>Developed a front-end platform for managing courses and schedules. Designed responsive UI using modern frontend technologies. Focused on usability and structured navigation.</p>
+                    <span class="tech">HTML</span>
+                    <span class="tech">CSS</span>
+                    <span class="tech">JavaScript</span>
+                    <span class="tech">React</span>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="date">December 2025</div>
+                    <h3>LegalCase – Digital Court Workspace</h3>
+                    <p>Designed a case management system simulating judicial workflows. Implemented data structures for efficient case handling and tracking. Included features for case prioritization and history tracking.</p>
+                    <span class="tech">Java</span>
+                    <span class="tech">Data Structures</span>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="date">February 2026</div>
+                    <h3>FindOra – Multi-category Filter Platform</h3>
+                    <p>Created a filtering-based platform for categorized search. Implemented dynamic filtering for better user experience.</p>
+                    <span class="tech">HTML</span>
+                    <span class="tech">CSS</span>
+                    <span class="tech">JavaScript</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SKILLS -->
+
+        <div class="section">
+            <div class="section-header">
+                <div class="icon">&#x2B50;</div>
+                <h2>SKILLS</h2>
+            </div>
+            <div class="skill-grid">
+                <span>Java Programming</span>
+                <span>DSA with Java</span>
+                <span>HTML</span>
+                <span>CSS</span>
+                <span>JavaScript</span>
+                <span>React</span>
+                <span>Problem Solving</span>
+                <span>Time Management</span>
+            </div>
+        </div>
+
+        <!-- LANGUAGES -->
+
+        <div class="section">
+            <div class="section-header">
+                <div class="icon">&#x1F30D;</div>
+                <h2>LANGUAGES</h2>
+            </div>
+            <div class="lang-list">
+                <span>English</span>
+                <span>Telugu</span>
+                <span>Hindi</span>
+                <span>Urdu</span>
+                <span>Japanese</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

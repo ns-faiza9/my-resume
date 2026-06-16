@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "workspace": {
+    "name": "myResume",
+    "createdAt": 1781586151154,
+    "preset": "starter"
+  },
+  "authorizedRoots": [
+    "D:\\DSE_DBD\\myResume"
+  ],
+  "reload": null
+}
