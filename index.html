@@ -1357,13 +1357,28 @@ footer .footer-links a:hover{
     </div>
 </footer>
 
+<!-- ===== EDIT OVERLAY ===== -->
+
+<div class="edit-overlay" id="editOverlay">
+    <div class="edit-container">
+        <h3>&#9998; Edit Content</h3>
+        <p>Edit the JSON below to update page content. Be careful not to change the structure (keys).</p>
+        <textarea id="editTextarea" spellcheck="false"></textarea>
+        <div class="edit-error" id="editError">&#9888; Invalid JSON. Please check your syntax.</div>
+        <div class="edit-actions">
+            <button class="btn btn-outline" id="cancelEditBtn" style="padding:10px 24px;font-size:14px">&#8634; Undo All</button>
+            <button class="btn btn-primary" id="saveEditBtn" style="padding:10px 24px;font-size:14px">&#10003; Save Changes</button>
+        </div>
+    </div>
+</div>
+
 <!-- ===== EDIT MODE CONTROLS ===== -->
 
 <div class="edit-bar" id="editBar">
-    <span class="edit-bar-text">&#128274; Edit mode</span>
+    <span class="edit-bar-text">&#128274; Edit mode active</span>
     <div class="edit-bar-actions">
-        <button class="btn btn-primary" id="saveEditBtn" style="padding:8px 20px;font-size:13px">&#10003; Save</button>
-        <button class="btn btn-outline" id="cancelEditBtn" style="padding:8px 20px;font-size:13px">&#8634; Reset</button>
+        <button class="btn btn-primary" id="openEditorBtn" style="padding:8px 20px;font-size:13px">&#9998; Open Editor</button>
+        <button class="btn btn-outline" id="exitEditBtn" style="padding:8px 20px;font-size:13px">&#10005; Exit</button>
     </div>
 </div>
 
@@ -1397,10 +1412,86 @@ footer .footer-links a:hover{
     gap:12px;
 }
 
-.editing [contenteditable]:focus{
-    outline:2px dashed var(--primary);
-    outline-offset:4px;
-    border-radius:4px;
+.edit-overlay{
+    position:fixed;
+    inset:0;
+    z-index:9998;
+    background:rgba(0,0,0,0.7);
+    backdrop-filter:blur(4px);
+    display:none;
+    padding:80px 24px 80px;
+    overflow-y:auto;
+}
+
+.edit-overlay.show{
+    display:block;
+}
+
+.edit-overlay .edit-container{
+    max-width:900px;
+    margin:0 auto;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:32px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+
+.edit-overlay .edit-container h3{
+    font-family:var(--font-display);
+    font-size:22px;
+    color:var(--text-primary);
+    margin-bottom:6px;
+}
+
+.edit-overlay .edit-container p{
+    font-size:14px;
+    color:var(--text-muted);
+    margin-bottom:20px;
+}
+
+.edit-overlay .edit-container textarea{
+    width:100%;
+    height:60vh;
+    background:var(--bg);
+    color:var(--text-primary);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:20px;
+    font-family:'Monaco','Menlo','Cascadia Code','Fira Code',monospace;
+    font-size:13px;
+    line-height:1.7;
+    resize:vertical;
+    outline:none;
+    transition:var(--transition);
+    tab-size:2;
+}
+
+.edit-overlay .edit-container textarea:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px var(--glow);
+}
+
+.edit-overlay .edit-actions{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+    justify-content:flex-end;
+}
+
+.edit-overlay .edit-error{
+    display:none;
+    color:#ef4444;
+    font-size:13px;
+    margin-top:10px;
+    padding:8px 14px;
+    background:rgba(239,68,68,0.08);
+    border-radius:8px;
+    border:1px solid rgba(239,68,68,0.2);
+}
+
+.edit-overlay .edit-error.show{
+    display:block;
 }
 </style>
 
@@ -1443,56 +1534,109 @@ document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 const EDIT_PASSWORD = 'cv2104';
 const editToggleBtn = document.getElementById('editToggleBtn');
 const editBar = document.getElementById('editBar');
+const openEditorBtn = document.getElementById('openEditorBtn');
+const exitEditBtn = document.getElementById('exitEditBtn');
+const editOverlay = document.getElementById('editOverlay');
+const editTextarea = document.getElementById('editTextarea');
 const saveBtn = document.getElementById('saveEditBtn');
 const cancelBtn = document.getElementById('cancelEditBtn');
+const editError = document.getElementById('editError');
 let editActive = false;
+let lastValidData = null;
 
-function getEditableSections(){
-    return document.querySelectorAll('.hero-text h1, .hero-text p, .about-text p, .project-card h3, .project-card p, .timeline-card h3, .timeline-card p, .edu-card h3, .edu-card .edu-degree, .skill-card .skill-name, .lang-list span, .contact-card a, .hero-badge, .hero-status-item .num, .hero-status-item .label, footer p:last-of-type');
+// Collect all editable content as a flat JSON object
+function collectContent(){
+    return {
+        name: document.querySelector('.hero h1 .gradient')?.textContent || '',
+        tagline: document.querySelector('.hero p')?.textContent || '',
+        badge: document.querySelector('.hero-badge')?.textContent?.replace('Open to opportunities','').trim() || 'Open to opportunities',
+        about_p1: document.querySelectorAll('.about-text p')[0]?.textContent || '',
+        about_p2: document.querySelectorAll('.about-text p')[1]?.textContent || '',
+        about_p3: document.querySelectorAll('.about-text p')[2]?.textContent || '',
+        skills_frontend: ['HTML5','CSS3','JavaScript','React'],
+        skills_programming: ['Java','DSA with Java','Problem Solving'],
+        skills_other: ['Time Management','Team Collaboration'],
+        languages: ['English','Telugu','Hindi','Urdu','Japanese'],
+        projects: [
+            { title: document.querySelectorAll('.project-card h3')[0]?.textContent || '', desc: document.querySelectorAll('.project-card p')[0]?.textContent || '', tech: ['Java','Data Structures'] },
+            { title: document.querySelectorAll('.project-card h3')[1]?.textContent || '', desc: document.querySelectorAll('.project-card p')[1]?.textContent || '', tech: ['HTML','CSS','JavaScript','React'] },
+            { title: document.querySelectorAll('.project-card h3')[2]?.textContent || '', desc: document.querySelectorAll('.project-card p')[2]?.textContent || '', tech: ['Java','Data Structures'] },
+            { title: document.querySelectorAll('.project-card h3')[3]?.textContent || '', desc: document.querySelectorAll('.project-card p')[3]?.textContent || '', tech: ['HTML','CSS','JavaScript'] }
+        ],
+        contact_email: document.querySelector('.contact-card a[href^="mailto"]')?.textContent || 'nsfaiza9@gmail.com',
+        contact_linkedin: document.querySelectorAll('.contact-card a[href*="linkedin"]')[0]?.textContent || '',
+        contact_github: document.querySelectorAll('.contact-card a[href*="github"]')[0]?.textContent || '',
+        contact_codechef: document.querySelectorAll('.contact-card a[href*="codechef"]')[0]?.textContent || '',
+        footer_text: document.querySelector('footer p:last-of-type')?.textContent || ''
+    };
+}
+
+// Apply JSON data back to the DOM
+function applyContent(data){
+    const g = document.querySelector('.hero h1 .gradient');
+    if(g && data.name) g.textContent = data.name;
+    const hp = document.querySelector('.hero p');
+    if(hp && data.tagline) hp.textContent = data.tagline;
+    const badge = document.querySelector('.hero-badge');
+    if(badge && data.badge) badge.innerHTML = '<span class="dot"></span> ' + data.badge;
+    const aboutPs = document.querySelectorAll('.about-text p');
+    if(aboutPs[0] && data.about_p1) aboutPs[0].textContent = data.about_p1;
+    if(aboutPs[1] && data.about_p2) aboutPs[1].textContent = data.about_p2;
+    if(aboutPs[2] && data.about_p3) aboutPs[2].textContent = data.about_p3;
+    // Skills
+    if(data.skills_frontend){
+        const cards = document.querySelectorAll('.skills-category:nth-child(2) .skill-card .skill-name');
+        data.skills_frontend.forEach((s,i)=>{ if(cards[i]) cards[i].textContent = s });
+    }
+    if(data.skills_programming){
+        const cards = document.querySelectorAll('.skills-category:nth-child(3) .skill-card .skill-name');
+        data.skills_programming.forEach((s,i)=>{ if(cards[i]) cards[i].textContent = s });
+    }
+    if(data.skills_other){
+        const cards = document.querySelectorAll('.skills-category:nth-child(4) .skill-card .skill-name');
+        data.skills_other.forEach((s,i)=>{ if(cards[i]) cards[i].textContent = s });
+    }
+    if(data.languages){
+        const langSpans = document.querySelectorAll('.skills-category:nth-child(5) .skill-card .skill-name');
+        data.languages.forEach((s,i)=>{ if(langSpans[i]) langSpans[i].textContent = s });
+    }
+    // Projects
+    if(data.projects){
+        data.projects.forEach((p,i)=>{
+            const titles = document.querySelectorAll('.project-card h3');
+            const descs = document.querySelectorAll('.project-card p');
+            if(titles[i]) titles[i].textContent = p.title;
+            if(descs[i]) descs[i].textContent = p.desc;
+            if(p.tech){
+                const techWrapper = document.querySelectorAll('.project-card .tech-stack');
+                if(techWrapper[i]){
+                    techWrapper[i].innerHTML = p.tech.map(t=>'<span>'+t+'</span>').join('');
+                }
+            }
+        });
+    }
+    // Contact
+    const emailA = document.querySelector('.contact-card a[href^="mailto"]');
+    if(emailA && data.contact_email) emailA.textContent = data.contact_email;
+    const linkedinA = document.querySelectorAll('.contact-card a[href*="linkedin"]')[0];
+    if(linkedinA && data.contact_linkedin) linkedinA.textContent = data.contact_linkedin;
+    const githubA = document.querySelectorAll('.contact-card a[href*="github"]')[0];
+    if(githubA && data.contact_github) githubA.textContent = data.contact_github;
+    const codechefA = document.querySelectorAll('.contact-card a[href*="codechef"]')[0];
+    if(codechefA && data.contact_codechef) codechefA.textContent = data.contact_codechef;
+    const footerP = document.querySelector('footer p:last-of-type');
+    if(footerP && data.footer_text) footerP.textContent = data.footer_text;
 }
 
 function enableEditing(){
     editActive = true;
     editBar.classList.add('show');
-    document.body.classList.add('editing');
-    getEditableSections().forEach(el=>{
-        el.setAttribute('contenteditable','true');
-        el.setAttribute('spellcheck','false');
-    });
 }
 
 function disableEditing(){
     editActive = false;
     editBar.classList.remove('show');
-    document.body.classList.remove('editing');
-    getEditableSections().forEach(el=>{
-        el.removeAttribute('contenteditable');
-        el.removeAttribute('spellcheck');
-    });
-}
-
-function saveChanges(){
-    const data = {};
-    document.querySelectorAll('[contenteditable]').forEach((el,i)=>{
-        // Use a unique key based on tag, class, and index
-        const key = el.tagName + '-' + (el.className || '') + '-' + i;
-        data[key] = el.innerHTML;
-    });
-    localStorage.setItem('cvEdits',JSON.stringify(data));
-    disableEditing();
-}
-
-function loadSavedEdits(){
-    const saved = localStorage.getItem('cvEdits');
-    if(!saved) return;
-    try{
-        const data = JSON.parse(saved);
-        const editables = getEditableSections();
-        editables.forEach((el,i)=>{
-            const key = el.tagName + '-' + (el.className || '') + '-' + i;
-            if(data[key]) el.innerHTML = data[key];
-        });
-    }catch(e){}
+    editOverlay.classList.remove('show');
 }
 
 editToggleBtn.addEventListener('click',()=>{
@@ -1508,17 +1652,41 @@ editToggleBtn.addEventListener('click',()=>{
     }
 });
 
-saveBtn.addEventListener('click',saveChanges);
+openEditorBtn.addEventListener('click',()=>{
+    lastValidData = collectContent();
+    editTextarea.value = JSON.stringify(lastValidData,null,2);
+    editOverlay.classList.add('show');
+    editError.classList.remove('show');
+});
 
 cancelBtn.addEventListener('click',()=>{
-    if(confirm('Reset all edits to original?')){
+    if(confirm('Reset all edits and reload original content?')){
         localStorage.removeItem('cvEdits');
         location.reload();
     }
 });
 
-// Load any previously saved edits
-loadSavedEdits();
+exitEditBtn.addEventListener('click',disableEditing);
+
+saveBtn.addEventListener('click',()=>{
+    try{
+        const data = JSON.parse(editTextarea.value);
+        editError.classList.remove('show');
+        applyContent(data);
+        localStorage.setItem('cvEdits',editTextarea.value);
+        editOverlay.classList.remove('show');
+    }catch(e){
+        editError.classList.add('show');
+    }
+});
+
+// Load saved edits on page load
+const saved = localStorage.getItem('cvEdits');
+if(saved){
+    try{
+        applyContent(JSON.parse(saved));
+    }catch(e){}
+}
 </script>
 
 </body>
