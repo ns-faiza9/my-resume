@@ -1357,6 +1357,23 @@ footer .footer-links a:hover{
     </div>
 </footer>
 
+<!-- ===== PASSWORD MODAL ===== -->
+
+<div class="pwd-overlay" id="pwdOverlay">
+    <div class="pwd-modal">
+        <h3>&#128274; Enter Password</h3>
+        <div class="pwd-field">
+            <input type="password" id="pwdInput" placeholder="Password" autocomplete="off">
+            <button id="pwdToggle" class="pwd-eye" aria-label="Toggle password visibility">&#128065;</button>
+        </div>
+        <div class="pwd-error" id="pwdError">&#9888; Incorrect password</div>
+        <div class="pwd-actions">
+            <button class="btn btn-outline" id="pwdCancel" style="padding:8px 20px;font-size:13px">Cancel</button>
+            <button class="btn btn-primary" id="pwdSubmit" style="padding:8px 20px;font-size:13px">Unlock &#128273;</button>
+        </div>
+    </div>
+</div>
+
 <!-- ===== EDIT OVERLAY ===== -->
 
 <div class="edit-overlay" id="editOverlay">
@@ -1383,6 +1400,98 @@ footer .footer-links a:hover{
 </div>
 
 <style>
+.pwd-overlay{
+    position:fixed;
+    inset:0;
+    z-index:10001;
+    background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(4px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+}
+
+.pwd-overlay.show{display:flex}
+
+.pwd-modal{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:32px;
+    width:100%;
+    max-width:380px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+
+.pwd-modal h3{
+    font-family:var(--font-display);
+    font-size:20px;
+    color:var(--text-primary);
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.pwd-field{
+    position:relative;
+    display:flex;
+    align-items:center;
+}
+
+.pwd-field input{
+    width:100%;
+    padding:12px 44px 12px 16px;
+    background:var(--bg);
+    border:1.5px solid var(--border);
+    border-radius:var(--radius-sm);
+    color:var(--text-primary);
+    font-size:15px;
+    font-family:var(--font-body);
+    outline:none;
+    transition:var(--transition);
+}
+
+.pwd-field input:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px var(--glow);
+}
+
+.pwd-field input::placeholder{
+    color:var(--text-muted);
+}
+
+.pwd-eye{
+    position:absolute;
+    right:8px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    font-size:18px;
+    padding:6px;
+    color:var(--text-muted);
+    transition:var(--transition);
+    line-height:1;
+}
+
+.pwd-eye:hover{color:var(--text-primary)}
+
+.pwd-error{
+    display:none;
+    color:#ef4444;
+    font-size:13px;
+    margin-top:10px;
+    text-align:center;
+}
+
+.pwd-error.show{display:block}
+
+.pwd-actions{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+    justify-content:flex-end;
+}
+
 .edit-bar{
     position:fixed;
     bottom:0;left:0;right:0;
@@ -1541,8 +1650,46 @@ const editTextarea = document.getElementById('editTextarea');
 const saveBtn = document.getElementById('saveEditBtn');
 const cancelBtn = document.getElementById('cancelEditBtn');
 const editError = document.getElementById('editError');
+const pwdOverlay = document.getElementById('pwdOverlay');
+const pwdInput = document.getElementById('pwdInput');
+const pwdToggle = document.getElementById('pwdToggle');
+const pwdSubmit = document.getElementById('pwdSubmit');
+const pwdCancel = document.getElementById('pwdCancel');
+const pwdError = document.getElementById('pwdError');
 let editActive = false;
 let lastValidData = null;
+
+pwdToggle.addEventListener('click',()=>{
+    const t = pwdInput.getAttribute('type');
+    pwdInput.setAttribute('type',t==='password'?'text':'password');
+    pwdToggle.textContent = t==='password'?'&#128064;':'&#128065;';
+});
+
+function showPwdModal(){
+    pwdOverlay.classList.add('show');
+    pwdInput.value = '';
+    pwdError.classList.remove('show');
+    pwdInput.focus();
+}
+
+function hidePwdModal(){
+    pwdOverlay.classList.remove('show');
+}
+
+function checkPassword(){
+    if(pwdInput.value === EDIT_PASSWORD){
+        hidePwdModal();
+        enableEditing();
+    }else{
+        pwdError.classList.add('show');
+        pwdInput.value = '';
+        pwdInput.focus();
+    }
+}
+
+pwdSubmit.addEventListener('click',checkPassword);
+pwdInput.addEventListener('keydown',e=>{ if(e.key==='Enter') checkPassword() });
+pwdCancel.addEventListener('click',hidePwdModal);
 
 // Collect all editable content as a flat JSON object
 function collectContent(){
@@ -1644,12 +1791,7 @@ editToggleBtn.addEventListener('click',()=>{
         disableEditing();
         return;
     }
-    const pwd = prompt('Enter password to edit:');
-    if(pwd === EDIT_PASSWORD){
-        enableEditing();
-    }else if(pwd !== null){
-        alert('Incorrect password.');
-    }
+    showPwdModal();
 });
 
 openEditorBtn.addEventListener('click',()=>{
