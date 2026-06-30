@@ -1696,7 +1696,7 @@ function collectContent(){
     const data = {};
     document.querySelectorAll('[data-edit]').forEach(el=>{
         const key = el.getAttribute('data-edit');
-        data[key] = key.endsWith('-tech') ? el.innerHTML : el.textContent;
+        data[key] = key.endsWith('-tech') ? el.innerHTML.trim() : el.textContent.trim();
     });
     return data;
 }
@@ -1707,7 +1707,7 @@ function applyContent(data){
         const key = el.getAttribute('data-edit');
         if(data[key] !== undefined){
             if(key === 'hero-badge'){
-                el.innerHTML = '<span class="dot"></span> ' + data[key];
+                el.innerHTML = '<span class="dot"></span> ' + data[key].trim();
             }else if(key.endsWith('-tech')){
                 el.innerHTML = data[key];
             }else{
@@ -1715,6 +1715,19 @@ function applyContent(data){
             }
         }
     });
+}
+
+function formatJSON(data){
+    const ordered = {};
+    const groupOrder = ['hero','about','skill','proj','contact','footer'];
+    const keys = Object.keys(data).sort((a,b)=>{
+        const ga = groupOrder.findIndex(g=>a.startsWith(g));
+        const gb = groupOrder.findIndex(g=>b.startsWith(g));
+        if(ga !== gb) return ga - gb;
+        return a.localeCompare(b);
+    });
+    keys.forEach(k=>{ ordered[k] = data[k] });
+    return JSON.stringify(ordered,null,2);
 }
 
 function enableEditing(){
@@ -1738,7 +1751,7 @@ editToggleBtn.addEventListener('click',()=>{
 
 openEditorBtn.addEventListener('click',()=>{
     lastValidData = collectContent();
-    editTextarea.value = JSON.stringify(lastValidData,null,2);
+    editTextarea.value = formatJSON(lastValidData);
     editOverlay.classList.add('show');
     editError.classList.remove('show');
 });
