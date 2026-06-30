@@ -1391,14 +1391,6 @@ footer .footer-links a:hover{
 
 <!-- ===== EDIT MODE CONTROLS ===== -->
 
-<div class="edit-bar" id="editBar">
-    <span class="edit-bar-text">&#128274; Edit mode active</span>
-    <div class="edit-bar-actions">
-        <button class="btn btn-primary" id="openEditorBtn" style="padding:8px 20px;font-size:13px">&#9998; Open Editor</button>
-        <button class="btn btn-outline" id="exitEditBtn" style="padding:8px 20px;font-size:13px">&#10005; Exit</button>
-    </div>
-</div>
-
 <style>
 .pwd-overlay{
     position:fixed;
@@ -1490,35 +1482,6 @@ footer .footer-links a:hover{
     gap:12px;
     margin-top:20px;
     justify-content:flex-end;
-}
-
-.edit-bar{
-    position:fixed;
-    bottom:0;left:0;right:0;
-    background:var(--surface);
-    border-top:2px solid var(--primary);
-    padding:12px 24px;
-    display:none;
-    align-items:center;
-    justify-content:space-between;
-    z-index:9999;
-    box-shadow:0 -4px 20px rgba(0,0,0,0.2);
-}
-
-.edit-bar.show{display:flex}
-
-.edit-bar-text{
-    font-size:14px;
-    font-weight:500;
-    color:var(--text-primary);
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
-.edit-bar-actions{
-    display:flex;
-    gap:12px;
 }
 
 .edit-overlay{
@@ -1642,9 +1605,6 @@ document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 // === PASSWORD EDIT MODE ===
 const EDIT_PASSWORD = 'cv2104';
 const editToggleBtn = document.getElementById('editToggleBtn');
-const editBar = document.getElementById('editBar');
-const openEditorBtn = document.getElementById('openEditorBtn');
-const exitEditBtn = document.getElementById('exitEditBtn');
 const editOverlay = document.getElementById('editOverlay');
 const editTextarea = document.getElementById('editTextarea');
 const saveBtn = document.getElementById('saveEditBtn');
@@ -1657,7 +1617,6 @@ const pwdSubmit = document.getElementById('pwdSubmit');
 const pwdCancel = document.getElementById('pwdCancel');
 const pwdError = document.getElementById('pwdError');
 let editActive = false;
-let lastValidData = null;
 
 pwdToggle.addEventListener('click',()=>{
     const t = pwdInput.getAttribute('type');
@@ -1732,12 +1691,14 @@ function formatJSON(data){
 
 function enableEditing(){
     editActive = true;
-    editBar.classList.add('show');
+    lastValidData = collectContent();
+    editTextarea.value = formatJSON(lastValidData);
+    editOverlay.classList.add('show');
+    editError.classList.remove('show');
 }
 
 function disableEditing(){
     editActive = false;
-    editBar.classList.remove('show');
     editOverlay.classList.remove('show');
 }
 
@@ -1749,21 +1710,12 @@ editToggleBtn.addEventListener('click',()=>{
     showPwdModal();
 });
 
-openEditorBtn.addEventListener('click',()=>{
-    lastValidData = collectContent();
-    editTextarea.value = formatJSON(lastValidData);
-    editOverlay.classList.add('show');
-    editError.classList.remove('show');
-});
-
 cancelBtn.addEventListener('click',()=>{
     if(confirm('Reset all edits and reload original content?')){
         localStorage.removeItem('cvEdits');
         location.reload();
     }
 });
-
-exitEditBtn.addEventListener('click',disableEditing);
 
 saveBtn.addEventListener('click',()=>{
     try{
